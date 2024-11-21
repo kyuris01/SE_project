@@ -15,8 +15,8 @@ typedef struct {
     bool rightobstacle;
 } Obstacle;
 
-char* Power; // ON, OFF, UP
-char* motorCommand;
+char* Power = "ON"; // ON, OFF, UP
+char* motorCommand = "Moving forward...\n";
 
 bool frontSensor();
 bool leftSensor();
@@ -197,7 +197,7 @@ void cleaningPower(char* power) {
 }
 
 void motorInterface(char* motorCommand) {
-    printf(motorCommand);
+    printf("%s", motorCommand);
 }
 
 void cleanerInterface(char* power) {
