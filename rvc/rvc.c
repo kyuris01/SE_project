@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <unistd.h> // sleep 함수 사용
 #include <string.h>
-
+#define ITERATION_NUM 10
 // 글로벌 변수로 센서 값을 저장
 bool frontSensorValue = false;
 bool leftSensorValue = false;
@@ -17,6 +17,9 @@ typedef struct {
 
 char* Power = "ON"; // ON, OFF, UP
 char* motorCommand = "Moving forward...\n";
+
+extern void tester();
+extern bool positionSequence[ITERATION_NUM][4];
 
 bool frontSensor();
 bool leftSensor();
@@ -49,6 +52,13 @@ void clearBuffer() {
 }
 
 int main() {
+    // for (int i = 0; i < sizeof positionSequence) ;i++) {
+    //     for(int j = 0;j < 4 ; j++) {
+    //         printf()
+    //     }
+        
+    // }
+    tester();
     Controller(); // Controller 호출 
     return 0;
 }
@@ -58,24 +68,32 @@ void Controller() {
     Power = "ON"; // 초기 상태는 "ON"
     cleaningPower(Power);
     moveForward(); // 초기 상태는 전진
-
+    int i = 0;
     while (1) { // 무한 루프
+        if(i == ITERATION_NUM) {
+            break;
+        }
+        printf("-----------------\n");
         // 사용자 입력을 통해 센서 값 설정
-        printf("Enter Front Sensor (0 or 1): ");
-        scanf("%d", (int*)&frontSensorValue); // 값을 0 또는 1로 입력받아 설정
-        clearBuffer(); // 버퍼 비우기
+        // printf("Enter Front Sensor (0 or 1): ");
+        // scanf("%d", (int*)&frontSensorValue); // 값을 0 또는 1로 입력받아 설정
+        // clearBuffer(); // 버퍼 비우기
 
-        printf("Enter Left Sensor (0 or 1): ");
-        scanf("%d", (int*)&leftSensorValue);
-        clearBuffer(); // 버퍼 비우기
+        // printf("Enter Left Sensor (0 or 1): ");
+        // scanf("%d", (int*)&leftSensorValue);
+        // clearBuffer(); // 버퍼 비우기
 
-        printf("Enter Right Sensor (0 or 1): ");
-        scanf("%d", (int*)&rightSensorValue);
-        clearBuffer(); // 버퍼 비우기
+        // printf("Enter Right Sensor (0 or 1): ");
+        // scanf("%d", (int*)&rightSensorValue);
+        // clearBuffer(); // 버퍼 비우기
 
-        printf("Enter Dust Sensor (0 or 1): ");
-        scanf("%d", (int*)&dustSensorValue);
-        clearBuffer(); // 버퍼 비우기
+        // printf("Enter Dust Sensor (0 or 1): ");
+        // scanf("%d", (int*)&dustSensorValue);
+        // clearBuffer(); // 버퍼 비우기
+        frontSensorValue = positionSequence[i][0];
+        leftSensorValue = positionSequence[i][1];
+        rightSensorValue = positionSequence[i][2];
+        dustSensorValue = positionSequence[i][3];
 
         // 장애물 감지
         Obstacle obstacleDetected = determineObstacleLocation();
@@ -134,6 +152,7 @@ void Controller() {
         }
 
         sleep(1); // 1초 대기
+        i++;
     }
 }
 
@@ -172,14 +191,15 @@ void moveForward() {
 
 void turnLeft() {
     motorCommand = "Turn Left for 5 Tick...\n";
-    sleep(5);
     motorInterface(motorCommand);
+    sleep(5);
+    
 }
 
 void turnRight() {
     motorCommand = "Turn Right for 5 Tick...\n";
-    sleep(5);
     motorInterface(motorCommand);
+    sleep(5);
 }
 
 void stop() {
