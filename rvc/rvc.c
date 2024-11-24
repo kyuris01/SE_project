@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <unistd.h> // sleep 함수 사용
+#include <unistd.h> 
 #include <string.h>
 #define ITERATION_NUM 10
-// 글로벌 변수로 센서 값을 저장
-bool frontSensorValue = false;
-bool leftSensorValue = false;
-bool rightSensorValue = false;
-bool dustSensorValue = false; // 기본값은 먼지가 있다고 가정
+
+bool frontSensorInput = false;
+bool leftSensorInput = false;
+bool rightSensorInput = false;
+bool dustSensorInput = false; 
 
 typedef struct {
     bool frontobstacle;
@@ -15,7 +15,7 @@ typedef struct {
     bool rightobstacle;
 } Obstacle;
 
-char* Power = "ON"; // ON, OFF, UP
+char* Power = "ON"; //초기값 지정 
 char* motorCommand = "Moving forward...\n";
 
 extern void tester();
@@ -26,23 +26,21 @@ bool leftSensor();
 bool rightSensor();
 bool dustSensor();
 
-Obstacle determineObstacleLocation();
-bool determineDustExistence();
+Obstacle ObstacleLocation();
+bool DustExistence();
 
-// 모터 동작
+//Direction
 void moveForward();
 void turnLeft();
 void turnRight();
 void moveBackward();
 void stop();
 
-// 클리닝 파워 제어
+//Cleaning Power 
 void cleaningPower(char* power);
-
 // 메인 컨트롤러
 void Controller();
-void* powerUp(void* arg);
-//output Interface
+//Output Interface
 void motorInterface(char* motorCommand);
 void cleanerInterface(char* power);
 
@@ -52,12 +50,6 @@ void clearBuffer() {
 }
 
 int main() {
-    // for (int i = 0; i < sizeof positionSequence) ;i++) {
-    //     for(int j = 0;j < 4 ; j++) {
-    //         printf()
-    //     }
-        
-    // }
     tester();
     Controller(); // Controller 호출 
     return 0;
@@ -74,35 +66,19 @@ void Controller() {
             break;
         }
         printf("-----------------\n");
-        // 사용자 입력을 통해 센서 값 설정
-        // printf("Enter Front Sensor (0 or 1): ");
-        // scanf("%d", (int*)&frontSensorValue); // 값을 0 또는 1로 입력받아 설정
-        // clearBuffer(); // 버퍼 비우기
-
-        // printf("Enter Left Sensor (0 or 1): ");
-        // scanf("%d", (int*)&leftSensorValue);
-        // clearBuffer(); // 버퍼 비우기
-
-        // printf("Enter Right Sensor (0 or 1): ");
-        // scanf("%d", (int*)&rightSensorValue);
-        // clearBuffer(); // 버퍼 비우기
-
-        // printf("Enter Dust Sensor (0 or 1): ");
-        // scanf("%d", (int*)&dustSensorValue);
-        // clearBuffer(); // 버퍼 비우기
-        frontSensorValue = positionSequence[i][0];
-        leftSensorValue = positionSequence[i][1];
-        rightSensorValue = positionSequence[i][2];
-        dustSensorValue = positionSequence[i][3];
+        frontSensorInput = positionSequence[i][0];
+        leftSensorInput = positionSequence[i][1];
+        rightSensorInput = positionSequence[i][2];
+        dustSensorInput = positionSequence[i][3];
 
         // 장애물 감지
-        Obstacle obstacleDetected = determineObstacleLocation();
+        Obstacle obstacleDetected = ObstacleLocation();
         bool F = obstacleDetected.frontobstacle;
         bool L = obstacleDetected.leftobstacle;
         bool R = obstacleDetected.rightobstacle;
-        bool Dust = determineDustExistence();
+        bool Dust = DustExistence();
 
-        if (strcmp(motorCommand, "Moving Backward...\n") == 0) {
+        if (strcmp(motorCommand, "Moving Backward...\n") == 0) { //Controller의 방향결정 로직 
             if (!L) {
                 Power = "OFF";
                 cleaningPower(Power);
@@ -121,7 +97,7 @@ void Controller() {
                 if(!Dust && (strcmp(Power, "UP") == 0)) {
                     printf("Dust Cleared\n");
                     Power = "ON";
-                    cleaningPower(Power); //다시 돌아올 때 power on이 2번이 출력됨. 걍 냅둘지 말지...
+                    cleaningPower(Power); 
                 }
 
                 Power = "ON";
@@ -148,15 +124,13 @@ void Controller() {
                     stop();
                 }
             }
-            
         }
-
-        sleep(1); // 1초 대기
+        sleep(1); // 1초 동안 수행 
         i++;
     }
 }
 
-Obstacle determineObstacleLocation() {
+Obstacle ObstacleLocation() {
     Obstacle obstacle;
     obstacle.frontobstacle = frontSensor();
     obstacle.leftobstacle = leftSensor();
@@ -164,24 +138,24 @@ Obstacle determineObstacleLocation() {
     return obstacle;
 }
 
-bool determineDustExistence() {
-    return dustSensorValue; // 먼지 센서 값
+bool DustExistence() {
+    return dustSensorInput; // 먼지 센서 값
 }
 
 bool frontSensor() {
-    return frontSensorValue; // 입력받은 값을 반환
+    return frontSensorInput; // 입력받은 값을 반환
 }
 
 bool leftSensor() {
-    return leftSensorValue; // 입력받은 값을 반환
+    return leftSensorInput; // 입력받은 값을 반환
 }
 
 bool rightSensor() {
-    return rightSensorValue; // 입력받은 값을 반환
+    return rightSensorInput; // 입력받은 값을 반환
 }
 
 bool dustSensor() {
-    return dustSensorValue; // 먼지 센서 값
+    return dustSensorInput; // 먼지 센서 값
 }
 
 void moveForward() {
@@ -192,14 +166,14 @@ void moveForward() {
 void turnLeft() {
     motorCommand = "Turn Left for 5 Tick...\n";
     motorInterface(motorCommand);
-    sleep(5);
+    sleep(5); //5초 동안 수행
     
 }
 
 void turnRight() {
     motorCommand = "Turn Right for 5 Tick...\n";
     motorInterface(motorCommand);
-    sleep(5);
+    sleep(5); //5초 동안 수행 
 }
 
 void stop() {
