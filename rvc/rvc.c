@@ -1,59 +1,31 @@
+#include "rvc.h"
+
 #include <stdio.h>
 #include <stdbool.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include <string.h>
-#define ITERATION_NUM 10
 
+// 전역 변수 정의
 bool frontSensorInput = false;
 bool leftSensorInput = false;
 bool rightSensorInput = false;
-bool dustSensorInput = false; 
+bool dustSensorInput = false;
 
-typedef struct {
-    bool frontobstacle;
-    bool leftobstacle;
-    bool rightobstacle;
-} Obstacle;
-
-char* Power = "ON"; //초기값 지정 
+char* Power = "ON";
 char* motorCommand = "Moving forward...\n";
 
-extern void tester();
-extern bool positionSequence[ITERATION_NUM][4];
-
-bool frontSensor();
-bool leftSensor();
-bool rightSensor();
-bool dustSensor();
-
-Obstacle ObstacleLocation();
-bool DustExistence();
-
-//Direction
-void moveForward();
-void turnLeft();
-void turnRight();
-void moveBackward();
-void stop();
-
-//Cleaning Power 
-void cleaningPower(char* power);
-// 메인 컨트롤러
-void Controller();
-//Output Interface
-void motorInterface(char* motorCommand);
-void cleanerInterface(char* power);
 
 void clearBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF); // 버퍼에 남아 있는 데이터 제거
 }
 
+#ifndef TESTING//조건부 호출 
 int main() {
-    tester();
     Controller(); // Controller 호출 
     return 0;
 }
+#endif
 
 void Controller() {
 
@@ -92,7 +64,8 @@ void Controller() {
                 cleaningPower(Power);
                 moveBackward();
             }
-        } else {
+        } 
+        else {
             if (!F) {
                 if(!Dust && (strcmp(Power, "UP") == 0)) {
                     printf("Dust Cleared\n");
@@ -100,16 +73,43 @@ void Controller() {
                     cleaningPower(Power); 
                 }
 
-                Power = "ON";
-                cleaningPower(Power);
-                moveForward();
+                //추가한 코드 
+                if(Dust && (strcmp(Power, "UP") == 0)) {
+                    printf("Dust Detected\n");
+                    Power = "UP";
+                    cleaningPower(Power);
+                    moveForward();
+                } else{
+                    Power = "ON";
+                    cleaningPower(Power);
+                    moveForward();
+                }
 
                 if(Dust && (strcmp(Power, "ON") == 0)) {
                     printf("Dust Detected\n");
                     Power = "UP";
                     cleaningPower(Power);
                 }
-            } else {
+            } 
+            // else {
+            // if (!F) {
+            //     if(!Dust && (strcmp(Power, "UP") == 0)) {
+            //         printf("Dust Cleared\n");
+            //         Power = "ON";
+            //         cleaningPower(Power); 
+            //     }
+
+            //     Power = "ON";
+            //     cleaningPower(Power);
+            //     moveForward();
+
+            //     if(Dust && (strcmp(Power, "ON") == 0)) {
+            //         printf("Dust Detected\n");
+            //         Power = "UP";
+            //         cleaningPower(Power);
+            //     }
+            // }
+            else {
                 if (F && !L) {
                     Power = "OFF";
                     cleaningPower(Power);
